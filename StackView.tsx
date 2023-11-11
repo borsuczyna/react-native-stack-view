@@ -225,7 +225,9 @@ export default function StackView({
                     transform: transform,
 
                     top: 0,
-                    bottom: (100 - maxStackPoint * 100) + '%',
+                    bottom: side === StackViewSide.Bottom ? (100 - maxStackPoint * 100) + '%' : 0,
+                    left: side === StackViewSide.Left ? (100 - maxStackPoint * 100) + '%' : 0,
+                    right: side === StackViewSide.Right ? (100 - maxStackPoint * 100) + '%' : 0,
                     
                     ...containerStyle,
                 }}
