@@ -13,6 +13,7 @@ type StackViewProps = PropsWithChildren<{
     backgroundColor: string;
     side?: StackViewSide;
     style?: any;
+    containerStyle?: any;
     snapPoints?: number[];
     onClosed?: () => void;
 }>;
@@ -25,6 +26,7 @@ export default function StackView({
     snapPoints = [100],
     onClosed = () => { },
     style,
+    containerStyle,
 }: StackViewProps): JSX.Element {
     // Animated value for the appearance animation
     const appearAnimation = useRef(new Animated.Value(0)).current;
@@ -153,10 +155,10 @@ export default function StackView({
         // Update velocity and animated value based on the side
         if (side === StackViewSide.Bottom) {
             velocity.current = progressY - animationProgress.current;
-            appearAnimation.setValue(Math.min(progressY, 1));
+            appearAnimation.setValue(Math.min(progressY, maxStackPoint));
         } else if (side === StackViewSide.Right) {
             velocity.current = progressX - animationProgress.current; 
-            appearAnimation.setValue(Math.min(progressX, 1));
+            appearAnimation.setValue(Math.min(progressX, maxStackPoint));
         } else if (side === StackViewSide.Left) {
             velocity.current = progressX - animationProgress.current;
             appearAnimation.setValue(Math.max(1 - progressX, 0)); 
@@ -221,12 +223,21 @@ export default function StackView({
                     borderBottomLeftRadius: side === StackViewSide.Right ? 16 : 0,
                     borderBottomRightRadius: side === StackViewSide.Left ? 16 : 0,
                     transform: transform,
+
+                    top: 0,
+                    bottom: (100 - maxStackPoint * 100) + '%',
+                    
+                    ...containerStyle,
                 }}
             >
-                <View style={stackViewStyles.innerContainer}>
-                    <View style={{ ...stackViewStyles.innerContainer, ...style }}>
-                        {children}
-                    </View>
+                <View style={{
+                    ...stackViewStyles.innerContainer,
+                    paddingTop: side === StackViewSide.Bottom ? 16 : 6,
+                    paddingLeft: side === StackViewSide.Right ? 16 : 6,
+                    paddingRight: side === StackViewSide.Left ? 16 : 6,
+                    ...style
+                }}>
+                    {children}
                 </View>
             </Animated.View>
 
@@ -274,17 +285,11 @@ const stackViewStyles: any = {
         position: "absolute",
         left: 0,
         right: 0,
-        top: 0,
-        bottom: 0,
-        flex: 1,
-        alignContent: "center",
-        justifyContent: "center",
     },
     innerContainer: {
         flex: 1,
         flexDirection: "column",
         position: "absolute",
-        width: "100%",
         alignContent: "center",
         justifyContent: "center",
     },
